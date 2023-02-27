@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: 'hub-source1-service'
+  labels:
+    app: 'hub-source1'
+spec:
+  type: NodePort
+  selector:
+    app: 'hub-source1'
+  ports:
+    - name: 'hub-source1-port1'
+      protocol: TCP
+      port: 8084
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 'hub-source1'
+  namespace: 'github-source'
+  labels:
+    app: 'hub-source1'
+spec:
+  selector:
+    matchLabels:
+      app: 'hub-source1'
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: 'hub-source1'
+    spec:
+      containers:
+        - name: 'hub-source1-hubcontainer1'
+          image: '${baseImgUrl}'
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: '200m'
+              memory: '200Mi'
+            limits:
+              cpu: '400m'
+              memory: '500Mi'
